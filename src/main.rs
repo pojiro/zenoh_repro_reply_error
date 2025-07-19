@@ -1,5 +1,9 @@
 use zenoh::Wait;
 
+/*
+ * RUST_LOG="trace" cargo run
+ */
+
 fn main() {
     let mut config = zenoh::config::Config::default();
     config.insert_json5("scouting/delay", "0").unwrap();
