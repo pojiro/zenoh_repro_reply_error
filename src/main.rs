@@ -10,7 +10,7 @@ fn main() {
     let session = zenoh::session::open(config).wait().unwrap();
 
     let (tx_query, rx_query) = std::sync::mpsc::channel();
-    let (tx_reply, _rx_reply) = std::sync::mpsc::channel();
+    let (tx_reply, rx_reply) = std::sync::mpsc::channel();
 
     env_logger::init();
 
@@ -39,20 +39,22 @@ fn main() {
         query.reply("key/expr/3", [3u8]).wait().unwrap();
     }
 
-    /*
-       let _replies = rx_reply
-           .iter()
-           .fold(Vec::<u8>::new(), |mut vec: Vec<u8>, reply| {
-               match reply.result() {
-                   Ok(sample) => {
-                       vec.extend_from_slice(&sample.payload().to_bytes());
-                       vec
-                   }
-                   Err(reply_error) => {
-                       vec.extend_from_slice(&reply_error.payload().to_bytes());
-                       vec
-                   }
-               }
-           });
-    */
+    let replies = rx_reply
+        .iter()
+        .fold(Vec::<u8>::new(), |mut vec: Vec<u8>, reply| {
+            match reply.result() {
+                Ok(sample) => {
+                    log::info!("ok");
+                    vec.extend_from_slice(&sample.payload().to_bytes());
+                    vec
+                }
+                Err(reply_error) => {
+                    log::info!("err");
+                    vec.extend_from_slice(&reply_error.payload().to_bytes());
+                    vec
+                }
+            }
+        });
+
+    log::warn!("{:?}", replies);
 }
